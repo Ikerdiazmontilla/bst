@@ -5,6 +5,7 @@
         "import/no-extraneous-dependencies": "off",
         "no-console":"off",
         "prettier/prettier": ["error"],
-        "no-undef":"off"
+        "no-undef":"off",
+        "no-param-reassign": "off"
     }
   }
