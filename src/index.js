@@ -90,6 +90,81 @@ class Tree {
     return null;
   }
 
+  levelOrder(cb = node => cbArray.push(node), root = this.root, queue = [], cbArray = []) {
+    cb(root);
+    if (root.left) queue.push(root.left);
+    if (root.right) queue.push(root.right);
+    if (queue.length === 0) return cbArray;
+    return this.levelOrder(cb, queue.shift(), queue, cbArray);
+  }
+
+  inOrder(cb = node => cbArray.push(node), root = this.root, cbArray = []) {
+    if (root === null) return cbArray;
+    this.inOrder(cb, root.left, cbArray);
+    cb(root);
+    this.inOrder(cb, root.right, cbArray);
+    return cbArray;
+  }
+
+  preOrder(cb = node => cbArray.push(node), root = this.root, cbArray = []) {
+    if (root === null) return cbArray;
+    cb(root);
+    this.preOrder(cb, root.left, cbArray);
+    this.preOrder(cb, root.right, cbArray);
+    return cbArray;
+  }
+
+  postOrder(cb = node => cbArray.push(node), root = this.root, cbArray = []) {
+    if (root === null) return cbArray;
+    this.postOrder(cb, root.left, cbArray);
+    this.postOrder(cb, root.right, cbArray);
+    cb(root);
+    return cbArray;
+  }
+
+  height(value, root = this.find(value), counter = 0) {
+    if (!root) return counter;
+    if (root.right === null && root.left === null) return counter;
+    if (root.left && !root.right) return this.height(value, root.left, counter + 1);
+    if (root.right && !root.left) return this.height(value, root.right, counter + 1);
+    const leftHeight = this.height(value, root.left, counter + 1);
+    const rightHeight = this.height(value, root.right, counter + 1);
+    if (leftHeight > rightHeight) return counter + leftHeight;
+    return counter + rightHeight;
+  }
+
+  depth(value, root = this.root, counter = 0) {
+    if (value < root.data) {
+      return this.depth(value, root.left, counter + 1);
+    }
+    if (value > root.data) {
+      return this.depth(value, root.right, counter + 1);
+    }
+    if (value === root.data) {
+      return counter;
+    }
+    return null;
+  }
+
+  isBalanced() {
+    let result = true;
+    this.postOrder(root => {
+      const leftHeight = this.height(root.data, root.left);
+      const rightHeight = this.height(root.data, root.right);
+      if (leftHeight > rightHeight + 1 || rightHeight > leftHeight + 1) result = false;
+    });
+    return result;
+  }
+
+  rebalance() {
+    const isBalanced = this.isBalanced();
+    if (isBalanced) return;
+    const arrayValues = [];
+    const treeArray = this.preOrder();
+    treeArray.forEach(node => arrayValues.push(node.data));
+    this.root = this.buildTree(arrayValues);
+  }
+
   prettyPrint(node, prefix = '', isLeft = true) {
     if (node === null) {
       return;
@@ -104,22 +179,22 @@ class Tree {
   }
 }
 
-const tree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
+const tree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67]);
 
-tree.insert(20);
-tree.insert(21);
-console.log(tree.find(67));
+console.log(tree.isBalanced());
 tree.prettyPrint(tree.root);
-// console.log(tree.root)
-
-// const array = [1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324];
-// console.log(array.sort((a, b) => a - b).filter((value, index) => array.indexOf(value) === index));
-
-// console.log('New array', newArray);
-// console.log('Mid', mid);
-// console.log('array[mid]', newArray[mid]);
-// console.log('newArray.slice()0,mid', newArray.slice(0, mid));
-// console.log(
-//   'newArray.slice(mid + 1, newArray.length',
-//   newArray.slice(mid + 1, newArray.length)
-// );
+console.log(tree.preOrder());
+console.log(tree.postOrder());
+console.log(tree.inOrder());
+console.log(tree.levelOrder());
+tree.insert(120);
+tree.insert(121);
+tree.insert(122);
+console.log(tree.isBalanced());
+tree.rebalance();
+console.log(tree.isBalanced());
+console.log(tree.preOrder());
+console.log(tree.postOrder());
+console.log(tree.inOrder());
+console.log(tree.levelOrder());
+tree.prettyPrint(tree.root);
